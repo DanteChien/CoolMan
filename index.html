@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事業土地污染調查及預防管理系統</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微軟正黑體", "Nunito", Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8fbff;
+            color: #5c6b7a;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239fd8de' fill-opacity='0.1'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* 清新可愛風格元素 */
+        .cute-cloud {
+            position: fixed;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            filter: blur(5px);
+            z-index: -1;
+        }
+
+        .cloud-1 {
+            width: 100px;
+            height: 60px;
+            top: 20%;
+            left: 10%;
+            animation: float 25s infinite ease-in-out;
+        }
+
+        .cloud-2 {
+            width: 150px;
+            height: 90px;
+            top: 60%;
+            right: 15%;
+            animation: float 20s infinite ease-in-out reverse;
+        }
+
+        .cloud-3 {
+            width: 80px;
+            height: 50px;
+            bottom: 10%;
+            left: 20%;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+            }
+            25% {
+                transform: translateY(-15px) translateX(15px);
+            }
+            50% {
+                transform: translateY(0) translateX(30px);
+            }
+            75% {
+                transform: translateY(15px) translateX(15px);
+            }
+        }
+
+        /* 頁首樣式 */
+        header {
+            width: 100%;
+            background-color: #ffffff;
+            box-shadow: 0 4px 15px rgba(157, 193, 251, 0.1);
+        }
+
+        .header-banner {
+            background-color: #d8f1b0;
+            background-image: url('header-bg.png');
+            color: #333;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo {
+            height: 60px;
+            margin-right: 15px;
+        }
+
+        .header-bg-icons {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            background-image: url('header-icons.png');
+            background-repeat: no-repeat;
+            background-position: right center;
+            background-size: contain;
+        }
+
+        .header-title h1 {
+            font-size: 24px;
+            margin-left: 10px;
+            color: #333;
+        }
+
+        .header-emoji {
+            font-size: 28px;
+            margin-right: 10px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        nav {
+            background-color: #ffffff;
+            display: flex;
+            padding: 0;
+            box-shadow: 0 4px 6px -1px rgba(157, 193, 251, 0.1);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            flex: 1;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        nav ul li a {
+            color: #5c6b7a;
+            text-decoration: none;
+            padding: 12px 0;
+            display: block;
+            font-size: 14px;
+            position: relative;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        nav ul li a:hover {
+            color: #78c2ad;
+            background-color: #f8f9fa;
+            border-bottom: 3px solid #78c2ad;
+        }
+
+        nav ul li a.active {
+            color: #78c2ad;
+            font-weight: bold;
+            background-color: #f0f8ff;
+            border-bottom: 3px solid #78c2ad;
+        }
+
+        .sub-header {
+            background-color: #ffffff;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #8b97a8;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+        }
+
+        .breadcrumb a {
+            color: #78c2ad;
+            text-decoration: none;
+            margin-left: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .breadcrumb a:hover {
+            color: #5ca08e;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-actions {
+            margin-left: 20px;
+        }
+
+        .user-actions a {
+            color: #78c2ad;
+            text-decoration: none;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .user-actions a:hover {
+            color: #5ca08e;
+        }
+
+        /* 主要內容區域 */
+        main {
+            padding: 20px;
+        }
+
+        .dashboard {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(157, 193, 251, 0.15);
+            overflow: hidden;
+            border: 1px solid #edf2f7;
+        }
+
+        .dashboard-header {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 2px dashed #f0f5ff;
+            background: linear-gradient(120deg, #fdfbfb 0%, #f0f8ff 100%);
+        }
+
+        .chart-icon {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+
+        .dashboard-header h2 {
+            color: #5c6b7a;
+            font-size: 18px;
+        }
+
+        .dashboard-content {
+            display: flex;
+            padding: 20px;
+        }
+
+        .left-stats {
+            width: 50%;
+            padding-right: 20px;
+        }
+
+        .right-stats {
+            width: 50%;
+            padding-left: 20px;
+            border-left: 2px dashed #f0f5ff;
+        }
+
+        .stats-title {
+            color: #78c2ad;
+            font-size: 16px;
+            margin-bottom: 15px;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .stats-title:before {
+            content: "🌱";
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 18px;
+        }
+
+        .stats-group {
+            margin-bottom: 20px;
+            background-color: #f8fbff;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(157, 193, 251, 0.05);
+            border: 1px solid #edf2f7;
+            transition: transform 0.3s ease;
+        }
+
+        .stats-group:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-group h4 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #5c6b7a;
+            border-bottom: 1px solid #edf2f7;
+            padding-bottom: 5px;
+        }
+
+        .stats-group p {
+            font-size: 14px;
+            color: #8b97a8;
+            margin-left: 20px;
+            margin-bottom: 5px;
+        }
+
+        .stats-group p::before {
+            content: "👉 ";
+        }
+
+        .doughnut-chart-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 20px;
+        }
+
+        .chart-center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .percentage {
+            display: block;
+            font-size: 24px;
+            font-weight: bold;
+            color: #78c2ad;
+        }
+
+        .label {
+            display: block;
+            font-size: 14px;
+            color: #8b97a8;
+        }
+
+        .total-reports {
+            text-align: center;
+            font-size: 14px;
+            color: #8b97a8;
+            margin-bottom: 10px;
+        }
+
+        .yearly-total {
+            text-align: center;
+            font-size: 14px;
+            color: #8b97a8;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f0f8ff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        .yearly-total::before {
+            content: "📊 ";
+        }
+
+        .chart-section {
+            padding: 20px;
+            border-top: 2px dashed #f0f5ff;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-header-emoji {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .chart-header h3 {
+            color: #78c2ad;
+            font-size: 16px;
+        }
+
+        .bar-chart-container {
+            height: 300px;
+            position: relative;
+            background-color: #f8fbff;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        /* 可愛水波紋效果 */
+        @keyframes ripple {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        .ripple-container {
+            position: fixed;
+            bottom: -100px;
+            left: -100px;
+            width: 200px;
+            height: 200px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(120, 194, 173, 0.1);
+            animation: ripple 8s infinite cubic-bezier(0, 0.5, 0.5, 1);
+        }
+
+        .ripple:nth-child(1) {
+            width: 100%;
+            height: 100%;
+            animation-delay: 0s;
+        }
+
+        .ripple:nth-child(2) {
+            width: 80%;
+            height: 80%;
+            left: 10%;
+            top: 10%;
+            animation-delay: 1s;
+        }
+
+        .ripple:nth-child(3) {
+            width: 60%;
+            height: 60%;
+            left: 20%;
+            top: 20%;
+            animation-delay: 2s;
+        }
+    </style>
+</head>
+<body>
+    <!-- 可愛雲朵背景 -->
+    <div class="cute-cloud cloud-1"></div>
+    <div class="cute-cloud cloud-2"></div>
+    <div class="cute-cloud cloud-3"></div>
+
+    <!-- 水波紋效果 -->
+    <div class="ripple-container">
+        <div class="ripple"></div>
+        <div class="ripple"></div>
+        <div class="ripple"></div>
+    </div>
+
+    <header>
+        <div class="header-banner">
+            <img src="logo.png" alt="土壤及地下水污染整治基金管理會" class="logo">
+            <div class="header-title">
+                <h1>事業土地污染調查及預防管理系統</h1>
+            </div>
+            <div class="header-bg-icons"></div>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="#" class="active">工廠查詢</a></li>
+                <li><a href="#">事業填報資料</a></li>
+                <li><a href="#">現勘/調查/預防</a></li>
+                <li><a href="#">統計下載</a></li>
+                <li><a href="#">其它查詢</a></li>
+                <li><a href="#">系統設定</a></li>
+            </ul>
+        </nav>
+        <div class="sub-header">
+            <div class="breadcrumb">
+                <span class="current-location">簡攻略</span>
+            </div>
+            <div class="user-info">
+                <span>網站公告：</span>
+                <span>本系統建議由Google Chrome瀏覽，以利畫面顯示正常</span>
+                <div class="user-actions">
+                    <a href="#">網站導覽</a>
+                    <a href="#">意見信箱</a>
+                    <a href="#">個人資料</a>
+                    <a href="#">登出</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="dashboard">
+            <div class="dashboard-header">
+                <div class="chart-icon">📈</div>
+                <h2>事業土地污染調查及預防管理系統儀表板</h2>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="left-stats">
+                    <h3 class="stats-title">事業分群即時統計資訊</h3>
+                    <div class="stats-group">
+                        <h4>加強管理群(A群)：</h4>
+                        <p>已完成 現勘OO家</p>
+                        <p>已完成 調查OO家</p>
+                    </div>
+                    <div class="stats-group">
+                        <h4>自主管理群(B群)：</h4>
+                        <p>自主 計畫已申報OO家</p>
+                        <p>已完成資料檢核OO家</p>
+                        <p>已完成現場檢核OO家</p>
+                    </div>
+                    <div class="stats-group">
+                        <h4>檢視管理群(C群)：</h4>
+                        <p>已完成檢視OO家</p>
+                    </div>
+                </div>
+
+                <div class="right-stats">
+                    <h3 class="stats-title">事業自主計畫填報統計</h3>
+                    <div class="doughnut-chart-container">
+                        <canvas id="completionChart"></canvas>
+                        <div class="chart-center-text">
+                            <span class="percentage">76.8%</span>
+                            <span class="label">計畫填報率</span>
+                        </div>
+                    </div>
+                    <p class="total-reports">已完成填報OOOO家</p>
+                    <p class="yearly-total">歷年預計填報總數 OOOO筆</p>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div class="chart-header-emoji">📊</div>
+                    <h3>歷年統計各縣市查獲超標家數</h3>
+                </div>
+                <div class="bar-chart-container">
+                    <canvas id="countyBarChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // 建立甜甜圈圖 - 添加動畫效果
+        const completionCtx = document.getElementById('completionChart').getContext('2d');
+        const completionChart = new Chart(completionCtx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [76.8, 23.2],
+                    backgroundColor: ['#78c2ad', '#f0f5ff'],
+                    borderWidth: 0,
+                    hoverBackgroundColor: ['#5ca08e', '#e0ebf5']
+                }]
+            },
+            options: {
+                cutout: '75%',
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: false
+                    }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 2000,
+                    easing: 'easeOutBounce'
+                }
+            }
+        });
+
+        // 建立長條圖 - 添加可愛動畫效果
+        const countyCtx = document.getElementById('countyBarChart').getContext('2d');
+        const countyBarChart = new Chart(countyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['臺北市', '新北市', '桃園市', '臺中市', '臺南市', '高雄市', '基隆市', '新竹市', '嘉義市', 
+                         '新竹縣', '苗栗縣', '彰化縣', '南投縣', '雲林縣', '嘉義縣', '屏東縣', '宜蘭縣', 
+                         '花蓮縣', '臺東縣', '金門縣', '澎湖縣'],
+                datasets: [{
+                    label: '超標家數',
+                    data: [35, 41, 22, 10, 5, 42, 53, 95, 17, 4, 2, 8, 5, 4, 2, 5, 4, 7, 64, 45, 5, 5],
+                    backgroundColor: function(context) {
+                        const colors = [
+                            '#78c2ad', '#ffafcc', '#a2d2ff', '#cdb4db', '#bde0fe', 
+                            '#a0c4ff', '#ffc8dd', '#d8e2dc', '#ffcfd2', '#b8d8be'
+                        ];
+                        return colors[context.dataIndex % colors.length];
+                    },
+                    borderColor: '#ffffff',
+                    borderWidth: 2,
+                    borderRadius: 10,
+                    borderSkipped: false,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20,
+                            color: '#8b97a8'
+                        },
+                        grid: {
+                            color: 'rgba(237, 242, 247, 0.8)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#8b97a8'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#ffffff',
+                        titleColor: '#5c6b7a',
+                        bodyColor: '#5c6b7a',
+                        borderColor: '#78c2ad',
+                        borderWidth: 1,
+                        displayColors: false,
+                        cornerRadius: 10,
+                        padding: 10,
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                return tooltipItems[0].label;
+                            },
+                            label: function(context) {
+                                return `超標家數: ${context.raw} 🏭`;
+                            }
+                        }
+                    }
+                },
+                maintainAspectRatio: false,
+                animation: {
+                    delay: function(context) {
+                        return context.dataIndex * 70;
+                    },
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                },
+                elements: {
+                    bar: {
+                        // 添加炫酷效果
+                        borderWidth: 2,
+                    }
+                }
+            }
+        });
+
+        // 添加可愛點擊效果
+        document.addEventListener('click', function(e) {
+            // 建立一個愛心元素
+            const heart = document.createElement('div');
+            heart.innerHTML = '💕';
+            heart.style.position = 'absolute';
+            heart.style.left = (e.pageX - 10) + 'px';
+            heart.style.top = (e.pageY - 20) + 'px';
+            heart.style.fontSize = '20px';
+            heart.style.pointerEvents = 'none';
+            heart.style.userSelect = 'none';
+            heart.style.zIndex = '999';
+            heart.style.animation = 'floatUp 1s forwards';
+            
+            // 加入動畫
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes floatUp {
+                    0% {
+                        transform: translateY(0) scale(1);
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translateY(-50px) scale(1.5);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // 加入到頁面中
+            document.body.appendChild(heart);
+            
+            // 一段時間後移除
+            setTimeout(function() {
+                heart.remove();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
