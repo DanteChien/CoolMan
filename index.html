@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事業土地污染調查及預防管理系統</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/countup.js@2.3.2/dist/countUp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Noto Sans TC", "Noto Sans SC", "Noto Sans JP", "Noto Sans KR", "思源黑體", sans-serif;
+        }
+
+        body {
+            background-color: #f9fafb;
+            color: #475569;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* 清新風格背景 */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(#e0f2fe 1px, transparent 1px),
+                radial-gradient(#e0f2fe 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        /* 頁首樣式 */
+        header {
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .header-banner {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" preserveAspectRatio="none"><path fill="%2387CEEB" d="M0 0h1200v300H0z"/><path fill="%2372C1E0" d="M0 180L50 190C100 200 200 220 300 230C400 240 500 240 600 230C700 220 800 200 900 200C1000 200 1100 220 1150 230L1200 240V300H0z"/><path fill="%234BBEDF" d="M0 220L50 210C100 200 200 180 300 180C400 180 500 200 600 210C700 220 800 220 900 210C1000 200 1100 180 1150 170L1200 160V300H0z"/><path fill="%2395D367" d="M0 250L50 240C100 230 200 210 300 210C400 210 500 230 600 240C700 250 800 250 900 240C1000 230 1100 210 1150 200L1200 190V300H0z"/><path fill="%23628E36" d="M0 290L50 288C100 286 200 282 300 276C400 270 500 262 600 258C700 254 800 254 900 258C1000 262 1100 270 1150 274L1200 278V300H0z"/><path fill="%23F4E7C3" d="M300 220a10 10 0 0 1 0 20a10 10 0 0 1 0 -20M350 230a8 8 0 0 1 0 16a8 8 0 0 1 0 -16M380 235a5 5 0 0 1 0 10a5 5 0 0 1 0 -10"/><path fill="%23B4D8E7" d="M1000 70L960 80C920 90 840 110 760 110C680 110 600 90 520 75C440 60 360 50 280 50C200 50 120 60 80 65L40 70L50 60C70 50 110 30 150 20C190 10 230 10 270 10C310 10 350 10 390 20C430 30 470 50 510 60C550 70 590 70 630 65C670 60 710 50 750 50C790 50 830 60 870 65C910 70 950 70 970 70L990 70Z"/><path fill="%23FFFFFF" d="M1000 40L960 45C920 50 840 60 760 60C680 60 600 50 520 45C440 40 360 40 280 40C200 40 120 40 80 40L40 40L50 35C70 30 110 20 150 15C190 10 230 10 270 10C310 10 350 10 390 15C430 20 470 30 510 35C550 40 590 40 630 37.5C670 35 710 30 750 30C790 30 830 35 870 37.5C910 40 950 40 970 40L990 40Z"/></svg>');
+            background-size: cover;
+            background-position: center bottom;
+            padding: 30px 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            z-index: 1;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            margin-right: 15px;
+        }
+
+        .header-title h1 {
+            font-size: 28px;
+            color: #0c4a6e;
+            font-weight: 600;
+        }
+
+        nav {
+            display: flex;
+            background-color: #fff;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            width: 100%;
+        }
+
+        nav ul li {
+            position: relative;
+            flex: 1;
+            text-align: center;
+        }
+
+        nav ul li a {
+            color: #64748b;
+            text-decoration: none;
+            padding: 15px 0;
+            display: block;
+            font-size: 17px;
+            transition: all 0.2s ease;
+        }
+
+        nav ul li a:hover {
+            color: #0284c7;
+        }
+
+        nav ul li a.active {
+            color: #0284c7;
+            font-weight: 500;
+        }
+
+        nav ul li a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 15%;
+            width: 70%;
+            height: 3px;
+            background-color: #0284c7;
+            border-radius: 2px;
+        }
+
+        .sub-header {
+            background-color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            color: #64748b;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+        }
+
+        .breadcrumb a {
+            color: #0284c7;
+            text-decoration: none;
+            margin-left: 5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .announcement {
+            display: flex;
+            align-items: center;
+        }
+
+        .announcement-icon {
+            margin-right: 5px;
+            color: #0284c7;
+        }
+
+        .user-actions {
+            margin-left: 20px;
+            display: flex;
+        }
+
+        .user-actions a {
+            color: #64748b;
+            text-decoration: none;
+            margin-left: 15px;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s ease;
+        }
+
+        .user-actions a:hover {
+            color: #0284c7;
+        }
+
+        .action-icon {
+            margin-right: 4px;
+            font-size: 16px;
+        }
+
+        /* 主要內容區域 */
+        main {
+            padding: 30px;
+        }
+
+        .dashboard {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dashboard-header {
+            padding: 18px 25px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+            background: linear-gradient(to right, #f0f9ff, #e0f2fe);
+        }
+
+        .chart-icon {
+            margin-right: 15px;
+            color: #0284c7;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .chart-icon svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .dashboard-header h2 {
+            color: #0c4a6e;
+            font-size: 22px;
+            font-weight: 500;
+        }
+
+        .dashboard-content {
+            display: flex;
+            padding: 25px;
+        }
+
+        .left-stats {
+            width: 50%;
+            padding-right: 25px;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+            animation-delay: 0.5s;
+        }
+
+        .right-stats {
+            width: 50%;
+            padding-left: 25px;
+            border-left: 1px solid #f1f5f9;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+            animation-delay: 0.8s;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .stats-title {
+            color: #0c4a6e;
+            font-size: 18px;
+            margin-bottom: 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .stats-icon {
+            margin-right: 12px;
+            animation: rotateIcon 4s linear infinite;
+        }
+
+        @keyframes rotateIcon {
+            0% {
+                transform: rotate(0deg);
+            }
+            25% {
+                transform: rotate(5deg);
+            }
+            75% {
+                transform: rotate(-5deg);
+            }
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+
+        .stats-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .stats-group {
+            margin-bottom: 22px;
+            background-color: #f8fafc;
+            padding: 18px;
+            border-radius: 8px;
+            border: 1px solid #f1f5f9;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        .stats-group:nth-child(1) {
+            animation: slideInRight 0.8s ease forwards;
+            animation-delay: 1s;
+        }
+
+        .stats-group:nth-child(2) {
+            animation: slideInRight 0.8s ease forwards;
+            animation-delay: 1.2s;
+        }
+
+        .stats-group:nth-child(3) {
+            animation: slideInRight 0.8s ease forwards;
+            animation-delay: 1.4s;
+        }
+
+        @keyframes slideInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .stats-group:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+            background: linear-gradient(to right, #f8fafc, #f0f9ff);
+        }
+
+        .stats-group h4 {
+            font-size: 17px;
+            margin-bottom: 12px;
+            color: #334155;
+            font-weight: 500;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .stats-group p {
+            font-size: 16px;
+            color: #64748b;
+            margin-left: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            animation: fadeInStagger 0.5s ease forwards;
+        }
+
+        .stats-group:nth-child(1) p:nth-child(2) {
+            animation-delay: 1.3s;
+        }
+        .stats-group:nth-child(1) p:nth-child(3) {
+            animation-delay: 1.4s;
+        }
+        .stats-group:nth-child(2) p:nth-child(2) {
+            animation-delay: 1.5s;
+        }
+        .stats-group:nth-child(2) p:nth-child(3) {
+            animation-delay: 1.6s;
+        }
+        .stats-group:nth-child(2) p:nth-child(4) {
+            animation-delay: 1.7s;
+        }
+        .stats-group:nth-child(3) p:nth-child(2) {
+            animation-delay: 1.8s;
+        }
+
+        @keyframes fadeInStagger {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .stats-item-icon {
+            margin-right: 10px;
+            color: #0284c7;
+            font-size: 18px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .number-value {
+            font-weight: bold;
+            color: #0284c7;
+        }
+
+        .doughnut-chart-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 25px;
+        }
+
+        .chart-center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            animation: fadeInScale 2s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .percentage {
+            display: block;
+            font-size: 28px;
+            font-weight: bold;
+            color: #0284c7;
+        }
+
+        .label {
+            display: block;
+            font-size: 16px;
+            color: #64748b;
+        }
+
+        .chart-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(2, 132, 199, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+            animation: glowPulse 2s infinite;
+        }
+
+        @keyframes glowPulse {
+            0% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.2;
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+        }
+
+        .total-reports {
+            text-align: center;
+            font-size: 16px;
+            color: #64748b;
+            margin-bottom: 12px;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 2.2s;
+        }
+
+        .yearly-total {
+            text-align: center;
+            font-size: 16px;
+            color: #64748b;
+            background-color: #f8fafc;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 0 auto;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 2.4s;
+        }
+
+        .chart-section {
+            padding: 25px;
+            border-top: 1px solid #f1f5f9;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 2.6s;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .bar-chart-icon {
+            margin-right: 12px;
+            color: #0284c7;
+            animation: jumpIcon 2s infinite;
+        }
+
+        @keyframes jumpIcon {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .bar-chart-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .chart-header h3 {
+            color: #0c4a6e;
+            font-size: 18px;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-header h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #0284c7, transparent);
+            animation: lineWidth 2s ease infinite;
+        }
+
+        @keyframes lineWidth {
+            0% {
+                width: 0;
+            }
+            50% {
+                width: 100%;
+            }
+            100% {
+                width: 0;
+            }
+        }
+
+        .bar-chart-container {
+            height: 350px;
+            position: relative;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 18px;
+            border: 1px solid #f1f5f9;
+        }
+        
+        .highlight-value {
+            position: relative;
+        }
+        
+        .highlight-value::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #0284c7, transparent);
+            animation: lineWidth 2s ease infinite;
+        }
+
+        /* 桑基圖樣式 */
+        .sankey-section {
+            margin-top: 30px;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 3s;
+        }
+
+        .sankey-container {
+            height: 400px;
+            position: relative;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 18px;
+            border: 1px solid #f1f5f9;
+            overflow: hidden;
+        }
+
+        #sankeyChart {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 地圖樣式 */
+        .map-section {
+            margin-top: 30px;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 3.5s;
+        }
+
+        .map-container {
+            height: 500px;
+            position: relative;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 0;
+            border: 1px solid #f1f5f9;
+            overflow: hidden;
+        }
+
+        #taiwanMap {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-marker {
+            background-color: #0284c7;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            box-shadow: 0 0 0 rgba(2, 132, 199, 0.4);
+            animation: pulse-map 2s infinite;
+        }
+
+        @keyframes pulse-map {
+            0% {
+                box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(2, 132, 199, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(2, 132, 199, 0);
+            }
+        }
+
+        .map-tooltip {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .map-tooltip h4 {
+            color: #0c4a6e;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .map-tooltip p {
+            margin: 0;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景模式 -->
+    <div class="bg-pattern"></div>
+
+    <header>
+        <div class="header-banner">
+            <div class="brand-container">
+                <!-- 清新風格的水滴/環保logo SVG -->
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C16.4183 22 20 18.4183 20 14C20 9 16 4 12 2C8 4 4 9 4 14C4 18.4183 7.58172 22 12 22Z" fill="#0284c7" fill-opacity="0.8"/>
+                    <path d="M12 16C13.6569 16 15 14.6569 15 13C15 11 13 9 12 8C11 9 9 11 9 13C9 14.6569 10.3431 16 12 16Z" fill="white"/>
+                </svg>
+                <div class="header-title">
+                    <h1>事業土地污染調查及預防管理系統</h1>
+                </div>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" class="active">工廠登記</a></li>
+                <li><a href="#">事業填報資料</a></li>
+                <li><a href="#">現勘/調查/預防</a></li>
+                <li><a href="#">統計下載</a></li>
+                <li><a href="#">基本資料</a></li>
+                <li><a href="#">系統設定</a></li>
+            </ul>
+        </nav>
+        <div class="sub-header">
+            <div class="breadcrumb">
+                <span class="current-location">首頁位置：</span>
+                <a href="#">首頁儀表板</a>
+            </div>
+            <div class="user-info">
+                <div class="announcement">
+                    <span class="announcement-icon">📢</span>
+                    <span>請使用最新版Google Chrome瀏覽器，以提供最佳正常體驗</span>
+                </div>
+                <div class="user-actions">
+                    <a href="#"><span class="action-icon">🧭</span> 網站導覽</a>
+                    <a href="#"><span class="action-icon">👤</span> 會員資料</a>
+                    <a href="#"><span class="action-icon">🔑</span> 登入/登出</a>
+                    <a href="#"><span class="action-icon">❓</span> 說明</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="dashboard">
+            <div class="dashboard-header">
+                <div class="chart-icon">
+                    <!-- 清新風格的圖表圖標 SVG -->
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="12" width="4" height="8" rx="1" fill="#0284c7"/>
+                        <rect x="10" y="8" width="4" height="12" rx="1" fill="#0284c7"/>
+                        <rect x="17" y="4" width="4" height="16" rx="1" fill="#0284c7"/>
+                    </svg>
+                </div>
+                <h2>事業土地污染調查及預防管理系統儀表板</h2>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="left-stats">
+                    <h3 class="stats-title">
+                        <div class="stats-icon">
+                            <!-- 清新風格的分類圖標 SVG -->
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 5C4 4.44772 4.44772 4 5 4H9C9.55228 4 10 4.44772 10 5V9C10 9.55228 9.55228 10 9 10H5C4.44772 10 4 9.55228 4 9V5Z" fill="#0284c7"/>
+                                <path d="M14 5C14 4.44772 14.4477 4 15 4H19C19.5523 4 20 4.44772 20 5V9C20 9.55228 19.5523 10 19 10H15C14.4477 10 14 9.55228 14 9V5Z" fill="#0284c7"/>
+                                <path d="M4 15C4 14.4477 4.44772 14 5 14H9C9.55228 14 10 14.4477 10 15V19C10 19.5523 9.55228 20 9 20H5C4.44772 20 4 19.5523 4 19V15Z" fill="#0284c7"/>
+                                <path d="M14 15C14 14.4477 14.4477 14 15 14H19C19.5523 14 20 14.4477 20 15V19C20 19.5523 19.5523 20 19 20H15C14.4477 20 14 19.5523 14 19V15Z" fill="#0284c7"/>
+                            </svg>
+                        </div>
+                        事業分群即時統計資訊
+                    </h3>
+                    <div class="stats-group">
+                        <h4>加強管理群(A群)：</h4>
+                        <p><span class="stats-item-icon">📊</span> 已完成 現勘<span class="number-value" id="value1">45</span>家</p>
+                        <p><span class="stats-item-icon">📋</span> 已完成 調查<span class="number-value" id="value2">32</span>家</p>
+                    </div>
+                    <div class="stats-group">
+                        <h4>自主管理群(B群)：</h4>
+                        <p><span class="stats-item-icon">📝</span> 自主 計畫已申報<span class="number-value" id="value3">87</span>家</p>
+                        <p><span class="stats-item-icon">✅</span> 已完成資料檢核<span class="number-value" id="value4">52</span>家</p>
+                        <p><span class="stats-item-icon">🏭</span> 已完成現場檢核<span class="number-value" id="value5">28</span>家</p>
+                    </div>
+                    <div class="stats-group">
+                        <h4>檢視管理群(C群)：</h4>
+                        <p><span class="stats-item-icon">👁️</span> 已完成檢視<span class="number-value" id="value6">124</span>家</p>
+                    </div>
+                </div>
+
+                <div class="right-stats">
+                    <h3 class="stats-title">
+                        <div class="stats-icon">
+                            <!-- 清新風格的文件圖標 SVG -->
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 2V5C8 5.55228 8.44772 6 9 6H14C14.5523 6 15 5.55228 15 5V2L16 2C17.1046 2 18 2.89543 18 4V20C18 21.1046 17.1046 22 16 22H8C6.89543 22 6 21.1046 6 20V4C6 2.89543 6.89543 2 8 2Z" fill="#0284c7"/>
+                                <path d="M9 10C9 9.44772 9.44772 9 10 9H14C14.5523 9 15 9.44772 15 10C15 10.5523 14.5523 11 14 11H10C9.44772 11 9 10.5523 9 10Z" fill="white"/>
+                                <path d="M10 13C9.44772 13 9 13.4477 9 14C9 14.5523 9.44772 15 10 15H14C14.5523 15 15 14.5523 15 14C15 13.4477 14.5523 13 14 13H10Z" fill="white"/>
+                            </svg>
+                        </div>
+                        事業自主計畫填報統計
+                    </h3>
+                    <div class="doughnut-chart-container">
+                        <div class="chart-glow"></div>
+                        <canvas id="completionChart"></canvas>
+                        <div class="chart-center-text">
+                            <span class="percentage" id="percentageDisplay">0%</span>
+                            <span class="label">計畫填報率</span>
+                        </div>
+                    </div>
+                    <p class="total-reports">已完成填報<span class="highlight-value" id="completedCount">3768</span>家</p>
+                    <p class="yearly-total">歷年預計填報總數 <span class="highlight-value" id="totalCount">4906</span>筆</p>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div class="bar-chart-icon">
+                        <!-- 清新風格的長條圖圖標 SVG -->
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 13.5C3 12.9477 3.44772 12.5 4 12.5H6C6.55228 12.5 7 12.9477 7 13.5V20C7 20.5523 6.55228 21 6 21H4C3.44772 21 3 20.5523 3 20V13.5Z" fill="#0284c7"/>
+                            <path d="M10 9.5C10 8.94772 10.4477 8.5 11 8.5H13C13.5523 8.5 14 8.94772 14 9.5V20C14 20.5523 13.5523 21 13 21H11C10.4477 21 10 20.5523 10 20V9.5Z" fill="#0284c7"/>
+                            <path d="M17 4C17 3.44772 17.4477 3 18 3H20C20.5523 3 21 3.44772 21 4V20C21 20.5523 20.5523 21 20 21H18C17.4477 21 17 20.5523 17 20V4Z" fill="#0284c7"/>
+                        </svg>
+                    </div>
+                    <h3>歷年統計各縣市查獲超標家數</h3>
+                </div>
+                <div class="bar-chart-container">
+                    <canvas id="countyBarChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 1. 新增桑基圖部分 -->
+            <div class="chart-section sankey-section">
+                <div class="chart-header">
+                    <div class="bar-chart-icon">
+                        <!-- 流程圖標 SVG -->
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 5C3 3.89543 3.89543 3 5 3H9C10.1046 3 11 3.89543 11 5V7C11 8.10457 10.1046 9 9 9H5C3.89543 9 3 8.10457 3 7V5Z" fill="#0284c7"/>
+                            <path d="M13 5C13 3.89543 13.8954 3 15 3H19C20.1046 3 21 3.89543 21 5V7C21 8.10457 20.1046 9 19 9H15C13.8954 9 13 8.10457 13 7V5Z" fill="#0284c7"/>
+                            <path d="M3 17C3 15.8954 3.89543 15 5 15H9C10.1046 15 11 15.8954 11 17V19C11 20.1046 10.1046 21 9 21H5C3.89543 21 3 20.1046 3 19V17Z" fill="#0284c7"/>
+                            <path d="M13 17C13 15.8954 13.8954 15 15 15H19C20.1046 15 21 15.8954 21 17V19C21 20.1046 20.1046 21 19 21H15C13.8954 21 13 20.1046 13 19V17Z" fill="#0284c7"/>
+                            <path d="M7 9V15" stroke="#0284c7" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M17 9V15" stroke="#0284c7" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M7 12H17" stroke="#0284c7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3>事業污染調查流向分析</h3>
+                </div>
+                <div class="sankey-container">
+                    <div id="sankeyChart"></div>
+                </div>
+            </div>
+
+            <!-- 2. 新增地圖部分 -->
+            <div class="chart-section map-section">
+                <div class="chart-header">
+                    <div class="bar-chart-icon">
+                        <!-- 地圖圖標 SVG -->
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 20L3 17V4L9 7M9 20L15 17M9 20V7M15 17L21 20V7L15 4M15 17V4M9 7L15 4" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>臺灣各縣市污染調查統計分布</h3>
+                </div>
+                <div class="map-container">
+                    <div id="taiwanMap"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // 頁面載入後啟動動畫
+        document.addEventListener('DOMContentLoaded', function() {
+            // 數字計數動畫
+            setTimeout(function() {
+                animateNumbers('value1', 0, 45, 2000);
+                animateNumbers('value2', 0, 32, 2000);
+                setTimeout(function() {
+                    animateNumbers('value3', 0, 87, 2000);
+                    animateNumbers('value4', 0, 52, 2000);
+                    animateNumbers('value5', 0, 28, 2000);
+                    setTimeout(function() {
+                        animateNumbers('value6', 0, 124, 2000);
+                    }, 500);
+                }, 500);
+                
+                // 填報量數字動畫
+                animateNumbers('completedCount', 0, 3768, 3000);
+                animateNumbers('totalCount', 0, 4906, 3000);
+            }, 1500);
+            
+            // 甜甜圈圖百分比動畫
+            animatePercentage('percentageDisplay', 0, 76.8, 2500);
+        });
+        
+        // 數字計數函數
+        function animateNumbers(elementId, start, end, duration) {
+            let element = document.getElementById(elementId);
+            let startTime = null;
+            
+            function animate(currentTime) {
+                if (!startTime) startTime = currentTime;
+                let progress = (currentTime - startTime) / duration;
+                progress = Math.min(progress, 1);
+                
+                let currentValue = Math.floor(start + (end - start) * progress);
+                element.textContent = currentValue;
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(animate);
+                }
+            }
+            
+            window.requestAnimationFrame(animate);
+        }
+        
+        // 百分比動畫
+        function animatePercentage(elementId, start, end, duration) {
+            let element = document.getElementById(elementId);
+            let startTime = null;
+            
+            function animate(currentTime) {
+                if (!startTime) startTime = currentTime;
+                let progress = (currentTime - startTime) / duration;
+                progress = Math.min(progress, 1);
+                
+                let currentValue = start + (end - start) * progress;
+                element.textContent = currentValue.toFixed(1) + '%';
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(animate);
+                }
+            }
+            
+            window.requestAnimationFrame(animate);
+        }
+
+        // 建立甜甜圈圖 - 添加增強動畫效果
+        const completionCtx = document.getElementById('completionChart').getContext('2d');
+        const completionChart = new Chart(completionCtx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [0, 100], // 初始值為0，後面會動畫到正確值
+                    backgroundColor: ['#0284c7', '#e0f2fe'],
+                    borderWidth: 0,
+                    hoverBackgroundColor: ['#0369a1', '#bae6fd']
+                }]
+            },
+            options: {
+                cutout: '75%',
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: false
+                    }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 2500,
+                    easing: 'easeOutCirc'
+                }
+            }
+        });
+
+        // 2秒後更新甜甜圈圖數據以觸發動畫
+        setTimeout(function() {
+            completionChart.data.datasets[0].data = [76.8, 23.2];
+            completionChart.update();
+        }, 2000);
+
+        // 建立長條圖 - 添加增強動畫效果
+        const countyCtx = document.getElementById('countyBarChart').getContext('2d');
+        const countyBarChart = new Chart(countyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['臺北市', '新北市', '桃園市', '臺中市', '臺南市', '高雄市', '基隆市', '新竹市', '嘉義市', 
+                         '新竹縣', '苗栗縣', '彰化縣', '南投縣', '雲林縣', '嘉義縣', '屏東縣', '宜蘭縣', 
+                         '花蓮縣', '臺東縣', '金門縣', '澎湖縣'],
+                datasets: [{
+                    label: '超標家數',
+                    data: [35, 41, 22, 10, 5, 42, 53, 95, 17, 4, 2, 8, 5, 4, 2, 5, 4, 7, 64, 45, 5, 5],
+                    backgroundColor: function(context) {
+                        const colors = ['#0ea5e9', '#7dd3fc', '#38bdf8', '#0284c7'];
+                        return colors[context.dataIndex % colors.length];
+                    },
+                    borderRadius: 6,
+                    borderSkipped: false,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20,
+                            color: '#64748b',
+                            font: {
+                                family: "'Noto Sans TC', sans-serif",
+                                size: 14
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(226, 232, 240, 0.8)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#64748b',
+                            font: {
+                                family: "'Noto Sans TC', sans-serif",
+                                size: 14
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'white',
+                        titleColor: '#334155',
+                        bodyColor: '#334155',
+                        borderColor: '#e2e8f0',
+                        borderWidth: 1,
+                        displayColors: false,
+                        cornerRadius: 6,
+                        boxPadding: 6,
+                        titleFont: {
+                            family: "'Noto Sans TC', sans-serif",
+                            size: 16
+                        },
+                        bodyFont: {
+                            family: "'Noto Sans TC', sans-serif",
+                            size: 14
+                        },
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                return tooltipItems[0].label;
+                            },
+                            label: function(context) {
+                                return `超標家數: ${context.raw}`;
+                            }
+                        }
+                    }
+                },
+                maintainAspectRatio: false,
+                animation: {
+                    delay: function(context) {
+                        return context.dataIndex * 50;
+                    },
+                    duration: 1000,
+                    easing: 'easeOutQuad'
+                }
+            }
+        });
+
+        // 桑基圖代碼
+        setTimeout(function() {
+            // 模擬數據 - 污染調查流向
+            const sankeyData = {
+                nodes: [
+                    { name: "工業區A" },        // 0
+                    { name: "工業區B" },        // 1
+                    { name: "工業區C" },        // 2
+                    { name: "土壤污染" },       // 3
+                    { name: "水污染" },         // 4
+                    { name: "空氣污染" },       // 5
+                    { name: "化學處理" },       // 6
+                    { name: "生物處理" },       // 7
+                    { name: "物理處理" },       // 8
+                    { name: "完全修復" },       // 9
+                    { name: "部分修復" },       // 10
+                    { name: "持續監測" }        // 11
+                ],
+                links: [
+                    { source: 0, target: 3, value: 30 },
+                    { source: 0, target: 4, value: 25 },
+                    { source: 0, target: 5, value: 15 },
+                    { source: 1, target: 3, value: 20 },
+                    { source: 1, target: 4, value: 35 },
+                    { source: 1, target: 5, value: 25 },
+                    { source: 2, target: 3, value: 35 },
+                    { source: 2, target: 4, value: 20 },
+                    { source: 2, target: 5, value: 30 },
+                    { source: 3, target: 6, value: 40 },
+                    { source: 3, target: 7, value: 30 },
+                    { source: 3, target: 8, value: 15 },
+                    { source: 4, target: 6, value: 35 },
+                    { source: 4, target: 7, value: 25 },
+                    { source: 4, target: 8, value: 20 },
+                    { source: 5, target: 6, value: 25 },
+                    { source: 5, target: 7, value: 15 },
+                    { source: 5, target: 8, value: 30 },
+                    { source: 6, target: 9, value: 50 },
+                    { source: 6, target: 10, value: 30 },
+                    { source: 6, target: 11, value: 20 },
+                    { source: 7, target: 9, value: 40 },
+                    { source: 7, target: 10, value: 15 },
+                    { source: 7, target: 11, value: 15 },
+                    { source: 8, target: 9, value: 25 },
+                    { source: 8, target: 10, value: 25 },
+                    { source: 8, target: 11, value: 15 }
+                ]
+            };
+
+            // 設置桑基圖尺寸
+            const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+            const width = document.getElementById('sankeyChart').clientWidth - margin.left - margin.right;
+            const height = document.getElementById('sankeyChart').clientHeight - margin.top - margin.bottom;
+
+            // 創建桑基圖
+            const svg = d3.select('#sankeyChart')
+                .append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            // 建立桑基圖佈局
+            const sankey = d3.sankey()
+                .nodeWidth(15)
+                .nodePadding(10)
+                .extent([[1, 1], [width - 1, height - 5]]);
+
+            // 生成桑基圖
+            const sankeyData_computed = sankey(sankeyData);
+
+            // 漸變色定義
+            const blueGradient = ['#bae6fd', '#7dd3fc', '#38bdf8', '#0ea5e9', '#0284c7', '#0369a1'];
+
+            // 繪製連接線
+            svg.append('g')
+                .selectAll('path')
+                .data(sankeyData_computed.links)
+                .enter()
+                .append('path')
+                .attr('d', d3.sankeyLinkHorizontal())
+                .attr('stroke', (d, i) => blueGradient[i % blueGradient.length])
+                .attr('stroke-width', d => Math.max(1, d.width))
+                .attr('fill', 'none')
+                .attr('opacity', 0)
+                .transition()
+                .delay((d, i) => i * 50)
+                .duration(800)
+                .attr('opacity', 0.3);
+
+            // 繪製節點
+            const nodes = svg.append('g')
+                .selectAll('rect')
+                .data(sankeyData_computed.nodes)
+                .enter()
+                .append('rect')
+                .attr('x', d => d.x0)
+                .attr('y', d => d.y0)
+                .attr('height', d => d.y1 - d.y0)
+                .attr('width', d => d.x1 - d.x0)
+                .attr('fill', (d, i) => blueGradient[Math.floor(i / 4) % blueGradient.length])
+                .attr('opacity', 0)
+                .transition()
+                .delay((d, i) => i * 100)
+                .duration(800)
+                .attr('opacity', 0.8);
+
+            // 添加節點標籤
+            svg.append('g')
+                .selectAll('text')
+                .data(sankeyData_computed.nodes)
+                .enter()
+                .append('text')
+                .attr('x', d => d.x0 < width / 2 ? d.x1 + 6 : d.x0 - 6)
+                .attr('y', d => (d.y1 + d.y0) / 2)
+                .attr('dy', '0.35em')
+                .attr('text-anchor', d => d.x0 < width / 2 ? 'start' : 'end')
+                .text(d => d.name)
+                .attr('font-size', '12px')
+                .attr('fill', '#334155')
+                .attr('opacity', 0)
+                .transition()
+                .delay((d, i) => i * 100 + 300)
+                .duration(800)
+                .attr('opacity', 1);
+        }, 3500);
+
+        // 台灣地圖代碼
+        setTimeout(function() {
+            // 創建地圖
+            const map = L.map('taiwanMap').setView([23.6978, 120.9605], 7); // 台灣中心位置
+
+            // 添加地圖圖層
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // 台灣22縣市的座標
+            const cityLocations = [
+                { name: '臺北市', lat: 25.0329, lng: 121.5654, value: 35 },
+                { name: '新北市', lat: 25.0169, lng: 121.4627, value: 41 },
+                { name: '桃園市', lat: 24.9936, lng: 121.3010, value: 22 },
+                { name: '臺中市', lat: 24.1477, lng: 120.6736, value: 10 },
+                { name: '臺南市', lat: 22.9997, lng: 120.2270, value: 5 },
+                { name: '高雄市', lat: 22.6273, lng: 120.3014, value: 42 },
+                { name: '基隆市', lat: 25.1276, lng: 121.7392, value: 53 },
+                { name: '新竹市', lat: 24.8138, lng: 120.9675, value: 95 },
+                { name: '嘉義市', lat: 23.4800, lng: 120.4491, value: 17 },
+                { name: '新竹縣', lat: 24.8397, lng: 121.0173, value: 4 },
+                { name: '苗栗縣', lat: 24.5600, lng: 120.8214, value: 2 },
+                { name: '彰化縣', lat: 24.0518, lng: 120.5161, value: 8 },
+                { name: '南投縣', lat: 23.9099, lng: 120.6697, value: 5 },
+                { name: '雲林縣', lat: 23.7092, lng: 120.4313, value: 4 },
+                { name: '嘉義縣', lat: 23.4518, lng: 120.2555, value: 2 },
+                { name: '屏東縣', lat: 22.5518, lng: 120.5478, value: 5 },
+                { name: '宜蘭縣', lat: 24.7021, lng: 121.7377, value: 4 },
+                { name: '花蓮縣', lat: 23.9871, lng: 121.6011, value: 7 },
+                { name: '臺東縣', lat: 22.7583, lng: 121.1444, value: 64 },
+                { name: '澎湖縣', lat: 23.5711, lng: 119.5793, value: 5 },
+                { name: '金門縣', lat: 24.4494, lng: 118.3186, value: 45 },
+                { name: '連江縣', lat: 26.1599, lng: 119.9512, value: 3 }
+            ];
+
+            // 依序添加城市標記，帶有延遲動畫效果
+            cityLocations.forEach((city, index) => {
+                setTimeout(() => {
+                    // 根據污染值計算標記大小
+                    const markerSize = Math.max(8, Math.min(20, city.value / 5 + 8));
+                    
+                    // 創建標記並添加到地圖
+                    const marker = L.circleMarker([city.lat, city.lng], {
+                        radius: markerSize / 2,
+                        fillColor: getColorByValue(city.value),
+                        color: '#fff',
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).addTo(map);
+                    
+                    // 為標記添加脈衝動畫效果
+                    marker.getElement().classList.add('map-marker');
+                    
+                    // 添加標記的彈出框
+                    marker.bindPopup(
+                        `<div class="map-tooltip">
+                            <h4>${city.name}</h4>
+                            <p>超標家數: ${city.value}</p>
+                        </div>`,
+                        { closeButton: false }
+                    );
+                    
+                    // 滑鼠懸停顯示彈出框
+                    marker.on('mouseover', function() {
+                        this.openPopup();
+                    });
+                    marker.on('mouseout', function() {
+                        this.closePopup();
+                    });
+                }, index * 100);
+            });
+            
+            // 根據污染值獲取顏色
+            function getColorByValue(value) {
+                if (value > 80) return '#0284c7';
+                if (value > 60) return '#0ea5e9';
+                if (value > 40) return '#38bdf8';
+                if (value > 20) return '#7dd3fc';
+                return '#bae6fd';
+            }
+        }, 4000);
+    </script>
+</body>
+</html>
